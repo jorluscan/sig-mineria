@@ -1,0 +1,18 @@
+# Django Core
+django==5.0.6
+djangorestframework==3.15.1
+
+# PostgreSQL Connector
+psycopg2-binary==2.9.9
+
+# Environment Variables
+python-dotenv==1.0.1
+
+# Production WSGI Server
+gunicorn==22.0.0
+
+# Excel Import/Export
+openpyxl==3.1.2
+
+# Image Handling
+Pillow==10.3.0
