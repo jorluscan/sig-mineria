@@ -1,74 +1,82 @@
 {% extends 'base.html' %} {% load humanize %} {% block content %}
-<div class="animate-fade-in">
+<div class="fade-in">
   <div class="mb-10">
     <h1 class="font-serif text-4xl text-zinc-900 leading-tight">
       Resumen Global
     </h1>
-    <p class="text-zinc-400 text-[10px] uppercase tracking-[0.4em] mt-2">
-      D'Kurvas Boutique Management
+    <p
+      class="text-zinc-600 text-[10px] uppercase tracking-[0.4em] mt-2 font-bold"
+    >
+      Panel de Inteligencia D'Kurvas
     </p>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-    <div class="bg-white p-6 rounded-3xl border border-zinc-100 shadow-sm">
+    <div class="bg-white p-6 rounded-3xl border border-zinc-200 shadow-sm">
       <span
-        class="text-[9px] uppercase tracking-widest text-zinc-400 font-bold block mb-2"
+        class="text-[9px] uppercase tracking-widest text-zinc-600 font-bold block mb-2"
         >Inversión en Stock</span
       >
       <p class="text-2xl font-serif text-zinc-900">
         ${{ total_cost|floatformat:2|intcomma }}
       </p>
-      <div class="mt-2 text-[10px] text-zinc-400">
-        <i class="fas fa-wallet mr-2 text-gold"></i> Capital
+      <div class="mt-2 text-[10px] text-zinc-500 italic">
+        <i class="fas fa-wallet mr-2 text-gold"></i> Capital Actual
       </div>
     </div>
 
-    <div class="bg-white p-6 rounded-3xl border border-zinc-100 shadow-sm">
+    <div class="bg-white p-6 rounded-3xl border border-zinc-200 shadow-sm">
       <span
-        class="text-[9px] uppercase tracking-widest text-zinc-400 font-bold block mb-2"
+        class="text-[9px] uppercase tracking-widest text-zinc-600 font-bold block mb-2"
         >Valor de Venta</span
       >
       <p class="text-2xl font-serif text-zinc-900">
         ${{ total_sales_value|floatformat:2|intcomma }}
       </p>
-      <div class="mt-2 text-[10px] text-zinc-400">
-        <i class="fas fa-tag mr-2 text-gold"></i> Potencial
+      <div class="mt-2 text-[10px] text-zinc-500 italic">
+        <i class="fas fa-tag mr-2 text-gold"></i> Ingreso Estimado
       </div>
     </div>
 
-    <div class="bg-zinc-900 p-6 rounded-3xl shadow-xl border border-zinc-800">
+    <div
+      class="bg-white p-6 rounded-3xl border border-zinc-200 shadow-sm bg-zinc-900 border-none"
+    >
       <span
-        class="text-[9px] uppercase tracking-widest text-zinc-500 font-bold block mb-2"
-        >Utilidad Estimada</span
+        class="text-[9px] uppercase tracking-widest text-zinc-400 font-bold block mb-2"
+        >Utilidad Bruta</span
       >
       <p class="text-2xl font-serif text-gold">
         ${{ projected_profit|floatformat:2|intcomma }}
       </p>
-      <div class="mt-2 text-[10px] text-green-500">
-        <i class="fas fa-chart-line mr-2"></i> Retorno
+      <div class="mt-2 text-[10px] text-zinc-500 italic">
+        <i class="fas fa-chart-line mr-2"></i> Margen Ganancia
       </div>
     </div>
 
-    <div class="bg-white p-6 rounded-3xl border border-red-100 shadow-sm">
+    <div
+      class="bg-white p-6 rounded-3xl border border-zinc-200 shadow-sm {% if low_stock_count > 0 %}border-red-200 bg-red-50/30{% endif %}"
+    >
       <span
-        class="text-[9px] uppercase tracking-widest text-red-400 font-bold block mb-2"
-        >Alertas Stock</span
+        class="text-[9px] uppercase tracking-widest text-zinc-600 font-bold block mb-2"
+        >Stock Crítico</span
       >
-      <p class="text-2xl font-serif text-red-600">{{ low_stock_count }}</p>
-      <a
-        href="{% url 'inventory_list' %}"
-        class="mt-2 text-[10px] text-red-400 underline"
-        >Ver Críticos</a
+      <p
+        class="text-2xl font-serif {% if low_stock_count > 0 %}text-red-600 animate-pulse{% else %}text-zinc-900{% endif %}"
       >
+        {{ low_stock_count }} <span class="text-xs font-sans">Prendas</span>
+      </p>
+      <div class="mt-2 text-[10px] text-zinc-500 italic">
+        <i class="fas fa-exclamation-triangle mr-2"></i> Reponer Pronto
+      </div>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
     <div
-      class="bg-white p-8 rounded-3xl border border-zinc-100 shadow-sm flex flex-col items-center"
+      class="bg-white p-8 rounded-3xl border border-zinc-200 shadow-sm flex flex-col items-center"
     >
       <h3 class="font-serif text-xl text-zinc-800 mb-6 self-start">
-        Distribución de Stock
+        Composición del Inventario
       </h3>
       <div class="w-full relative" style="height: 250px">
         <canvas id="categoryChart"></canvas>
@@ -76,50 +84,56 @@
     </div>
 
     <div
-      class="bg-white rounded-3xl border border-zinc-100 shadow-sm overflow-hidden"
+      class="lg:col-span-2 bg-white p-8 rounded-3xl border border-zinc-200 shadow-sm overflow-hidden"
     >
-      <div class="p-6 border-b border-zinc-50 bg-zinc-50/50">
-        <h3 class="font-serif text-lg text-zinc-800">Entradas Recientes</h3>
-      </div>
-      <div class="p-4">
-        {% for arrival in recent_arrivals %}
-        <div
-          class="flex justify-between items-center p-3 border-b border-zinc-50 last:border-0"
-        >
-          <span class="text-xs font-bold"
-            >{{ arrival.variation.product.name }}</span
+      <h3 class="font-serif text-xl text-zinc-800 mb-6">Últimos Movimientos</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="space-y-4">
+          <p
+            class="text-[10px] uppercase font-bold text-zinc-400 tracking-widest border-b border-zinc-100 pb-2"
           >
-          <span class="text-xs text-green-600 font-bold"
-            >+{{ arrival.quantity }}</span
+            Ingresos Recientes
+          </p>
+          {% for arrival in recent_arrivals %}
+          <div
+            class="flex justify-between items-center text-xs p-2 hover:bg-zinc-50 rounded-lg transition-colors"
           >
+            <span class="font-bold text-zinc-800"
+              >{{ arrival.variation.product.name }}</span
+            >
+            <span class="text-green-600 font-bold"
+              >+{{ arrival.quantity }}</span
+            >
+          </div>
+          {% empty %}
+          <p class="text-zinc-400 text-[10px] italic">
+            No hay ingresos recientes.
+          </p>
+          {% endfor %}
         </div>
-        {% empty %}
-        <p class="p-4 text-center text-xs text-zinc-400">Sin ingresos hoy.</p>
-        {% endfor %}
-      </div>
-    </div>
-
-    <div
-      class="bg-white rounded-3xl border border-zinc-100 shadow-sm overflow-hidden"
-    >
-      <div class="p-6 border-b border-zinc-50 bg-zinc-50/50">
-        <h3 class="font-serif text-lg text-zinc-800">Salidas Recientes</h3>
-      </div>
-      <div class="p-4">
-        {% for dispatch in recent_dispatches %}
-        <div
-          class="flex justify-between items-center p-3 border-b border-zinc-50 last:border-0"
-        >
-          <span class="text-xs font-bold"
-            >{{ dispatch.variation.product.name }}</span
+        <div class="space-y-4">
+          <p
+            class="text-[10px] uppercase font-bold text-zinc-400 tracking-widest border-b border-zinc-100 pb-2"
           >
-          <span class="text-xs text-amber-600 font-bold"
-            >-{{ dispatch.quantity }}</span
+            Despachos Recientes
+          </p>
+          {% for dispatch in recent_dispatches %}
+          <div
+            class="flex justify-between items-center text-xs p-2 hover:bg-zinc-50 rounded-lg transition-colors"
           >
+            <span class="font-bold text-zinc-800"
+              >{{ dispatch.variation.product.name }}</span
+            >
+            <span class="text-amber-600 font-bold"
+              >-{{ dispatch.quantity }}</span
+            >
+          </div>
+          {% empty %}
+          <p class="text-zinc-400 text-[10px] italic">
+            No hay despachos registrados.
+          </p>
+          {% endfor %}
         </div>
-        {% empty %}
-        <p class="p-4 text-center text-xs text-zinc-400">Sin despachos hoy.</p>
-        {% endfor %}
       </div>
     </div>
   </div>
@@ -134,17 +148,15 @@
           labels: {{ cat_labels|safe }},
           datasets: [{
               data: {{ cat_stocks|safe }},
-              backgroundColor: ['#d4af37', '#18181b', '#71717a', '#a1a1aa', '#f4f4f5'],
+              backgroundColor: ['#d4af37', '#18181b', '#71717a', '#a1a1aa'],
               borderWidth: 0
           }]
       },
       options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: {
-              legend: { position: 'bottom', labels: { font: { size: 10 } } }
-          },
-          cutout: '75%'
+          cutout: '75%',
+          plugins: { legend: { position: 'bottom', labels: { font: { size: 10, family: 'Inter' }, padding: 20 } } }
       }
   });
 </script>
