@@ -1,0 +1,35 @@
+{% load humanize %}
+{% for product in products %}
+<tr class="hover:bg-zinc-50/40 transition-all group border-b border-zinc-50">
+    <td class="px-8 py-5 text-[11px] font-mono text-zinc-500">{{ product.sku }}</td>
+    <td class="px-8 py-5">
+        <span class="block font-bold text-zinc-900 text-sm leading-tight">{{ product.name }}</span>
+        <span class="text-[9px] text-zinc-400 uppercase">{% if product.category %}{{ product.category.name }}{% else
+            %}General{% endif %}</span>
+    </td>
+    <td class="px-8 py-5 text-center text-zinc-500 text-xs">${{ product.cost_price|floatformat:2|intcomma }}</td>
+    <td class="px-8 py-5 text-center text-zinc-900 font-bold text-xs">${{ product.sale_price|floatformat:2|intcomma }}
+    </td>
+    <td class="px-8 py-5 text-center">
+        <div class="flex flex-col items-center">
+            <span
+                class="text-lg font-serif {% if product.total_qty <= product.min_stock_level %}text-red-500 font-extrabold animate-pulse{% else %}text-zinc-900{% endif %}">
+                {{ product.total_qty|default:0|intcomma }}
+            </span>
+            {% if product.total_qty <= product.min_stock_level %} <span
+                class="text-[8px] uppercase font-bold text-red-400">Stock Bajo</span>
+                {% endif %}
+        </div>
+    </td>
+    <td class="px-8 py-5 text-center">
+        <a href="{% url 'product_detail' product.id %}"
+            class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-zinc-900 text-gold hover:bg-gold hover:text-black transition-all">
+            <i class="fas fa-eye text-xs"></i>
+        </a>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="6" class="px-8 py-20 text-center text-zinc-400 italic">No se encontraron productos.</td>
+</tr>
+{% endfor %}

@@ -1,100 +1,123 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
 <div class="animate-fade-in">
-  <div
-    class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6"
-  >
+  <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-10 gap-6">
     <div>
-      <h1 class="font-serif text-4xl text-zinc-900 leading-tight">
-        Inventario Maestro
-      </h1>
-      <p class="text-zinc-500 text-[10px] uppercase tracking-[0.4em] mt-2">
-        Catálogo completo de existencias
-      </p>
+      <h1 class="font-serif text-4xl text-zinc-900 leading-tight">Inventario Maestro</h1>
+      <p class="text-zinc-500 text-[10px] uppercase tracking-[0.4em] font-bold mt-2">Control Global de Existencias</p>
     </div>
 
-    <div class="flex space-x-4">
-      <a
-        href="{% url 'create_product' %}"
-        class="bg-black text-gold px-8 py-4 rounded-2xl text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-zinc-800 transition-all shadow-xl flex items-center"
-      >
-        <i class="fas fa-plus mr-3"></i> Nuevo Producto
-      </a>
+    <div class="flex flex-col md:flex-row gap-4 w-full xl:w-auto">
+      <div class="relative group w-full md:w-64">
+        <i
+          class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-gold transition-colors"></i>
+        <input type="text" id="ajax-search" placeholder="Buscar..." value="{{ query|default:'' }}"
+          class="pl-11 pr-4 py-3 bg-white border border-zinc-200 rounded-2xl text-[11px] uppercase w-full focus:ring-2 focus:ring-gold/20 focus:border-gold outline-none shadow-sm transition-all">
+        <div id="search-spinner" class="hidden absolute right-4 top-1/2 -translate-y-1/2">
+          <i class="fas fa-circle-notch fa-spin text-gold"></i>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <a href="{% url 'create_dispatch' %}"
+          class="bg-zinc-800 text-zinc-100 px-6 py-3 rounded-2xl text-[10px] uppercase font-bold hover:bg-zinc-700 transition-all shadow-lg flex items-center justify-center">
+          <i class="fas fa-truck-loading mr-2 text-zinc-400"></i> Despacho
+        </a>
+        <a href="{% url 'create_stock_arrival' %}"
+          class="bg-[#d4af37] text-black px-6 py-3 rounded-2xl text-[10px] uppercase font-bold hover:bg-[#b8962d] transition-all shadow-lg flex items-center justify-center">
+          <i class="fas fa-plus-circle mr-2"></i> Reposición
+        </a>
+        <a href="{% url 'create_product' %}"
+          class="bg-black text-[#d4af37] px-6 py-3 rounded-2xl text-[10px] uppercase font-bold hover:bg-zinc-900 transition-all shadow-xl flex items-center justify-center">
+          <i class="fas fa-plus mr-2"></i> Nuevo
+        </a>
+      </div>
     </div>
   </div>
 
-  <div
-    class="bg-white rounded-3xl border border-zinc-100 shadow-sm overflow-hidden"
-  >
-    <table class="w-full text-left">
-      <thead>
-        <tr
-          class="text-[10px] uppercase tracking-[0.2em] text-zinc-500 border-b border-zinc-50 bg-zinc-50/50"
-        >
-          <th class="px-10 py-6 font-bold">Referencia</th>
-          <th class="px-10 py-6 font-bold">Prenda</th>
-          <th class="px-10 py-6 font-bold text-center">Costo</th>
-          <th class="px-10 py-6 font-bold text-center">Venta</th>
-          <th class="px-10 py-6 font-bold text-center">Stock Total</th>
-          <th class="px-10 py-6 font-bold text-center">Acción</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-zinc-50">
-        {% for product in products %}
-        <tr class="hover:bg-zinc-50/30 transition-all group">
-          <td class="px-10 py-6 text-[11px] font-mono text-zinc-500">
-            {{ product.sku }}
-          </td>
-          <td class="px-10 py-6 font-bold text-zinc-900 text-sm">
-            {{ product.name }}
-          </td>
-          <td class="px-10 py-6 text-center text-zinc-500 text-xs">
-            ${{ product.cost_price|floatformat:2 }}
-          </td>
-          <td class="px-10 py-6 text-center text-zinc-900 font-bold text-xs">
-            ${{ product.sale_price|floatformat:2 }}
-          </td>
-          <td class="px-10 py-6 text-center">
-            <span
-              class="text-lg font-serif {% if product.total_stock <= product.min_stock_level %}text-red-500 font-bold{% else %}text-zinc-900{% endif %}"
-            >
-              {{ product.total_stock }}
-            </span>
-          </td>
-          <td class="px-10 py-6 text-center">
-            <a
-              href="{% url 'product_detail' product.id %}"
-              class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-zinc-900 text-gold hover:bg-gold hover:text-black transition-all"
-            >
-              <i class="fas fa-eye text-xs"></i>
-            </a>
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="6" class="px-10 py-20 text-center text-zinc-500 italic">
-            No hay productos registrados.
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="bg-white rounded-3xl border border-zinc-100 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse min-w-[850px]">
+        <thead>
+          <tr class="text-[10px] uppercase tracking-widest text-zinc-400 bg-zinc-50/50">
+            <th class="px-8 py-6">
+              <a href="?o={% if request.GET.o == 'sku' %}-sku{% else %}sku{% endif %}{% if query %}&q={{ query }}{% endif %}"
+                class="hover:text-gold flex items-center transition-colors">
+                Referencia <i class="fas fa-sort ml-2 opacity-30"></i>
+              </a>
+            </th>
+            <th class="px-8 py-6">
+              <a href="?o={% if request.GET.o == 'name' %}-name{% else %}name{% endif %}{% if query %}&q={{ query }}{% endif %}"
+                class="hover:text-gold flex items-center transition-colors">
+                Producto <i class="fas fa-sort ml-2 opacity-30"></i>
+              </a>
+            </th>
+
+            <th class="px-8 py-6 text-center">
+              <a href="?o={% if request.GET.o == 'cost' %}-cost{% else %}cost{% endif %}{% if query %}&q={{ query }}{% endif %}"
+                class="hover:text-gold flex items-center justify-center transition-colors">
+                Costo <i class="fas fa-sort ml-2 opacity-30"></i>
+              </a>
+            </th>
+
+            <th class="px-8 py-6 text-center">
+              <a href="?o={% if request.GET.o == 'price' %}-price{% else %}price{% endif %}{% if query %}&q={{ query }}{% endif %}"
+                class="hover:text-gold flex items-center justify-center transition-colors">
+                Venta <i class="fas fa-sort ml-2 opacity-30"></i>
+              </a>
+            </th>
+
+            <th class="px-8 py-6 text-center">
+              <a href="?o={% if request.GET.o == 'stock' %}-stock{% else %}stock{% endif %}{% if query %}&q={{ query }}{% endif %}"
+                class="hover:text-gold flex items-center justify-center transition-colors">
+                Stock <i class="fas fa-sort ml-2 opacity-30"></i>
+              </a>
+            </th>
+            <th class="px-8 py-6 text-center">Acción</th>
+          </tr>
+        </thead>
+        <tbody id="inventory-tbody" class="divide-y divide-zinc-50">
+          {% include 'inventory/inventory_table_partial.html' %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
-<style>
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  .animate-fade-in {
-    animation: fadeIn 0.6s ease-out forwards;
-  }
-</style>
+<script>
+  // Lógica AJAX para búsqueda instantánea
+  const searchInput = document.getElementById('ajax-search');
+  const tbody = document.getElementById('inventory-tbody');
+  const spinner = document.getElementById('search-spinner');
+  let timeout = null;
 
-{% endblock %} ```
+  searchInput.addEventListener('input', function () {
+    clearTimeout(timeout);
+    spinner.classList.remove('hidden');
+    tbody.style.opacity = '0.5';
+
+    timeout = setTimeout(() => {
+      const query = searchInput.value;
+      const urlParams = new URLSearchParams(window.location.search);
+      const order = urlParams.get('o') || 'name';
+      const url = `?q=${query}&o=${order}`;
+
+      fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(response => response.text())
+        .then(html => {
+          tbody.innerHTML = html;
+          tbody.style.opacity = '1';
+          spinner.classList.add('hidden');
+          window.history.pushState({}, '', url);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          spinner.classList.add('hidden');
+          tbody.style.opacity = '1';
+        });
+    }, 400);
+  });
+</script>
+{% endblock %}

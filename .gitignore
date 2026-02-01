@@ -68,7 +68,7 @@ static/
 # Docker
 docker-compose.override.yml
 
-# --- Ajustes específicos para D'Kurvas ---
+# --- Ajustes específicos para Gestion de Inventario ---
 # Ignorar respaldos de base de datos
 *.sql
 

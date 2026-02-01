@@ -1,97 +1,91 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400&display=swap"
-      rel="stylesheet"
-    />
-    <title>D'Kurvas | Acceso Privado</title>
-    <style>
-      .font-serif {
-        font-family: "Playfair Display", serif;
-      }
-      body {
-        font-family: "Inter", sans-serif;
-        background-color: #000;
-      }
-      .text-gold {
-        color: #d4af37;
-      }
-      .border-gold {
-        border-color: #d4af37;
-      }
-    </style>
-  </head>
-  <body
-    class="flex items-center justify-center min-h-screen p-6 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-900 via-black to-black"
-  >
-    <div
-      class="max-w-md w-full bg-zinc-900/40 p-10 rounded-3xl border border-zinc-800 backdrop-blur-md shadow-2xl"
-    >
-      <div class="text-center mb-10">
-        <h1 class="font-serif text-4xl text-gold tracking-widest uppercase">
-          D'KURVAS
-        </h1>
-        <p class="text-zinc-500 text-[10px] uppercase tracking-[0.4em] mt-3">
-          Exclusividad & Estilo
-        </p>
-      </div>
 
-      <form method="post" class="space-y-6">
-        {% csrf_token %}
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;700;800&display=swap"
+    rel="stylesheet" />
+  <title>Gestion de Inventario | Acceso Privado</title>
+  <style>
+    .font-serif {
+      font-family: "Playfair Display", serif;
+    }
 
-        <div>
-          <label
-            class="text-zinc-500 text-[10px] uppercase tracking-widest ml-1"
-            >Nombre de Usuario</label
-          >
-          <input
-            type="text"
-            name="username"
-            required
-            class="w-full bg-black/50 border border-zinc-800 text-white px-4 py-3 rounded-xl mt-2 focus:border-gold outline-none transition-all placeholder-zinc-700"
-            placeholder="Ingrese su usuario"
-          />
-        </div>
+    body {
+      font-family: "Inter", sans-serif;
+      background-color: #000;
+    }
 
-        <div>
-          <label
-            class="text-zinc-500 text-[10px] uppercase tracking-widest ml-1"
-            >Contraseña</label
-          >
-          <input
-            type="password"
-            name="password"
-            required
-            class="w-full bg-black/50 border border-zinc-800 text-white px-4 py-3 rounded-xl mt-2 focus:border-gold outline-none transition-all placeholder-zinc-700"
-            placeholder="••••••••"
-          />
-        </div>
+    /* Definición de colores dorados personalizados */
+    .text-gold {
+      color: #d4af37;
+    }
 
-        <button
-          type="submit"
-          class="w-full bg-gold text-black font-bold py-4 rounded-xl uppercase text-[11px] tracking-[0.2em] hover:bg-yellow-600 transition-all shadow-lg shadow-gold/5 mt-4"
-        >
-          Iniciar Sesión
-        </button>
-      </form>
+    .border-gold {
+      border-color: #d4af37;
+    }
 
-      {% if form.errors %}
-      <div
-        class="mt-6 p-4 bg-red-900/20 border border-red-900/50 rounded-xl text-center"
-      >
-        <p class="text-red-400 text-xs">Usuario o contraseña incorrectos.</p>
-      </div>
-      {% endif %}
+    .bg-gold {
+      background-color: #d4af37;
+    }
 
-      <div class="mt-10 text-center border-t border-zinc-800/50 pt-6">
-        <p class="text-zinc-600 text-[9px] uppercase tracking-widest">
-          Sistema de Gestión de Inventario SIG v1.0
-        </p>
-      </div>
+    .shadow-gold-glow {
+      shadow-color: rgba(212, 175, 55, 0.2);
+      box-shadow: 0 10px 15px -3px rgba(212, 175, 55, 0.2), 0 4px 6px -2px rgba(212, 175, 55, 0.1);
+    }
+  </style>
+</head>
+
+<body
+  class="flex items-center justify-center min-h-screen p-6 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-900 via-black to-black">
+  <div class="max-w-md w-full bg-zinc-900/40 p-10 rounded-3xl border border-zinc-800 backdrop-blur-md shadow-2xl">
+    <div class="text-center mb-10">
+      <h1 class="font-serif text-4xl text-gold tracking-widest uppercase">
+        GESTION DE INVENTARIO
+      </h1>
+      <p class="text-zinc-500 text-[10px] uppercase tracking-[0.4em] mt-3">
+        Exclusividad & Estilo
+      </p>
     </div>
-  </body>
+
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+
+      <div>
+        <label class="text-zinc-500 text-[10px] uppercase tracking-widest ml-1">Nombre de Usuario</label>
+        <input type="text" name="username" required
+          class="w-full bg-black/50 border border-zinc-800 text-white px-4 py-3 rounded-xl mt-2 focus:border-gold outline-none transition-all placeholder-zinc-700"
+          placeholder="Ingrese su usuario" />
+      </div>
+
+      <div>
+        <label class="text-zinc-500 text-[10px] uppercase tracking-widest ml-1">Contraseña</label>
+        <input type="password" name="password" required
+          class="w-full bg-black/50 border border-zinc-800 text-white px-4 py-3 rounded-xl mt-2 focus:border-gold outline-none transition-all placeholder-zinc-700"
+          placeholder="••••••••" />
+      </div>
+
+      <button type="submit"
+        class="w-full bg-gold text-black font-extrabold py-4 rounded-xl uppercase text-[12px] tracking-[0.3em] hover:bg-[#e5c158] transition-all duration-300 shadow-gold-glow mt-4 active:scale-[0.98]">
+        Iniciar Sesión
+      </button>
+    </form>
+
+    {% if form.errors %}
+    <div class="mt-6 p-4 bg-red-900/20 border border-red-900/50 rounded-xl text-center">
+      <p class="text-red-400 text-xs">Usuario o contraseña incorrectos.</p>
+    </div>
+    {% endif %}
+
+    <div class="mt-10 text-center border-t border-zinc-800/50 pt-6">
+      <p class="text-zinc-600 text-[9px] uppercase tracking-widest">
+        Sistema de Gestión de Inventario SIG v1.0
+      </p>
+    </div>
+  </div>
+</body>
+
 </html>
