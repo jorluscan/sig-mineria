@@ -1,35 +1,65 @@
 {% load humanize %}
+
 {% for product in products %}
-<tr class="hover:bg-zinc-50/40 transition-all group border-b border-zinc-50">
-    <td class="px-8 py-5 text-[11px] font-mono text-zinc-500">{{ product.sku }}</td>
-    <td class="px-8 py-5">
-        <span class="block font-bold text-zinc-900 text-sm leading-tight">{{ product.name }}</span>
-        <span class="text-[9px] text-zinc-400 uppercase">{% if product.category %}{{ product.category.name }}{% else
-            %}General{% endif %}</span>
+<tr class="hover:bg-blue-50/30 transition-colors border-b border-slate-100 group">
+
+    <td class="px-6 py-4 whitespace-nowrap">
+        <span class="font-mono text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded">
+            {{ product.sku }}
+        </span>
     </td>
-    <td class="px-8 py-5 text-center text-zinc-500 text-xs">${{ product.cost_price|floatformat:2|intcomma }}</td>
-    <td class="px-8 py-5 text-center text-zinc-900 font-bold text-xs">${{ product.sale_price|floatformat:2|intcomma }}
-    </td>
-    <td class="px-8 py-5 text-center">
-        <div class="flex flex-col items-center">
-            <span
-                class="text-lg font-serif {% if product.total_qty <= product.min_stock_level %}text-red-500 font-extrabold animate-pulse{% else %}text-zinc-900{% endif %}">
-                {{ product.total_qty|default:0|intcomma }}
+
+    <td class="px-6 py-4">
+        <div class="flex flex-col">
+            <span class="font-bold text-slate-700 text-sm leading-tight">{{ product.name }}</span>
+            <span class="text-[10px] text-slate-400 uppercase font-medium mt-0.5 flex items-center gap-1">
+                <i class="fas fa-tag text-[8px] opacity-50"></i>
+                {% if product.category %}{{ product.category.name }}{% else %}General{% endif %}
             </span>
-            {% if product.total_qty <= product.min_stock_level %} <span
-                class="text-[8px] uppercase font-bold text-red-400">Stock Bajo</span>
-                {% endif %}
         </div>
     </td>
-    <td class="px-8 py-5 text-center">
+
+    <td class="px-6 py-4 text-right font-mono text-sm text-slate-600">
+        ${{ product.cost_price|floatformat:2|intcomma }}
+    </td>
+
+    <td class="px-6 py-4 text-right font-mono text-sm text-slate-400">
+        ${{ product.sale_price|floatformat:2|intcomma }}
+    </td>
+
+    <td class="px-6 py-4 text-center">
+        {% if product.total_qty <= product.min_stock_level %} <span
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-100">
+            <i class="fas fa-exclamation-triangle text-[10px]"></i>
+            {{ product.total_qty|default:0 }}
+            </span>
+            {% else %}
+            <span
+                class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-100">
+                {{ product.total_qty|default:0|intcomma }}
+            </span>
+            {% endif %}
+    </td>
+
+    <td class="px-6 py-4 text-right">
         <a href="{% url 'product_detail' product.id %}"
-            class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-zinc-900 text-gold hover:bg-gold hover:text-black transition-all">
-            <i class="fas fa-eye text-xs"></i>
+            class="inline-flex items-center justify-center w-8 h-8 rounded-md text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all border border-transparent hover:border-blue-100"
+            title="Ver Detalle">
+            <i class="fas fa-eye text-sm"></i>
         </a>
     </td>
 </tr>
+
 {% empty %}
 <tr>
-    <td colspan="6" class="px-8 py-20 text-center text-zinc-400 italic">No se encontraron productos.</td>
+    <td colspan="6" class="px-6 py-12 text-center">
+        <div class="flex flex-col items-center justify-center">
+            <div class="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mb-3">
+                <i class="fas fa-box-open text-slate-300 text-xl"></i>
+            </div>
+            <p class="text-slate-500 font-medium text-sm">No se encontraron materiales.</p>
+            <p class="text-slate-400 text-xs mt-1">Intenta ajustar los filtros de búsqueda.</p>
+        </div>
+    </td>
 </tr>
 {% endfor %}

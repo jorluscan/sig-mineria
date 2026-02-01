@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto fade-in pb-20">
+
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Auditoría de Movimientos</h1>
+            <p class="text-xs text-slate-500 font-medium mt-1">Historial operativo de flujo de materiales</p>
+        </div>
+        <div>
+            <button onclick="window.print()"
+                class="px-4 py-2 bg-white border border-slate-300 text-slate-600 text-sm font-semibold rounded hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2">
+                <i class="fas fa-print"></i> Imprimir
+            </button>
+        </div>
+    </div>
+
+    <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm mb-6">
+        <form method="GET" class="flex flex-col lg:flex-row gap-6 items-center justify-between">
+
+            <div class="flex bg-slate-100 p-1 rounded-md w-full lg:w-auto">
+
+                <a href="?interval={{ interval }}&type=dispatches&start={{ start_val }}&end={{ end_val }}"
+                    class="flex-1 lg:flex-none px-6 py-2 text-xs font-bold uppercase rounded text-center transition-all 
+           {% if report_type == 'dispatches' %} bg-white text-blue-600 shadow-sm ring-1 ring-slate-200 {% else %} text-slate-500 hover:text-slate-700 {% endif %}">
+                    <i class="fas fa-dolly mr-2"></i> Salidas
+                </a>
+
+                <a href="?interval={{ interval }}&type=arrivals&start={{ start_val }}&end={{ end_val }}"
+                    class="flex-1 lg:flex-none px-6 py-2 text-xs font-bold uppercase rounded text-center transition-all 
+           {% if report_type == 'arrivals' %} bg-white text-emerald-600 shadow-sm ring-1 ring-slate-200 {% else %} text-slate-500 hover:text-slate-700 {% endif %}">
+                    <i class="fas fa-truck-loading mr-2"></i> Entradas
+                </a>
+
+            </div>
+
+            <div class="flex flex-wrap items-center gap-4 w-full lg:w-auto justify-end">
+                <input type="hidden" name="type" value="{{ report_type }}">
+
+                <div
+                    class="hidden sm:flex text-xs font-medium text-slate-500 bg-slate-50 rounded border border-slate-200 divide-x divide-slate-200">
+                    <a href="?interval=daily&type={{ report_type }}"
+                        class="px-3 py-2 hover:bg-white hover:text-blue-600">Hoy</a>
+                    <a href="?interval=weekly&type={{ report_type }}"
+                        class="px-3 py-2 hover:bg-white hover:text-blue-600">Semana</a>
+                    <a href="?interval=monthly&type={{ report_type }}"
+                        class="px-3 py-2 hover:bg-white hover:text-blue-600">Mes</a>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <input type="hidden" name="interval" value="custom">
+                    <input type="date" name="start" value="{{ start_val }}"
+                        class="pl-2 pr-2 py-1.5 border border-slate-300 rounded text-xs text-slate-600 outline-none">
+                    <span class="text-slate-400 text-xs">-</span>
+                    <input type="date" name="end" value="{{ end_val }}"
+                        class="pl-2 pr-2 py-1.5 border border-slate-300 rounded text-xs text-slate-600 outline-none">
+                    <button type="submit" class="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 shadow-sm"><i
+                            class="fas fa-filter text-xs"></i></button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div
+            class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm flex items-start justify-between relative overflow-hidden">
+            <div
+                class="absolute left-0 top-0 bottom-0 w-1 {% if report_type == 'dispatches' %} bg-blue-500 {% else %} bg-emerald-500 {% endif %}">
+            </div>
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Volumen Físico</p>
+                <h3 class="text-3xl font-bold text-slate-800">{{ kpi_units|intcomma }}</h3>
+                <span
+                    class="text-[10px] text-slate-500 font-medium bg-slate-100 px-2 py-0.5 rounded mt-2 inline-block">Unidades
+                    Totales</span>
+            </div>
+            <div class="p-3 bg-slate-50 rounded text-slate-400"><i class="fas fa-cubes text-2xl"></i></div>
+        </div>
+
+        <div
+            class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm flex items-start justify-between relative overflow-hidden">
+            <div
+                class="absolute left-0 top-0 bottom-0 w-1 {% if report_type == 'dispatches' %} bg-blue-500 {% else %} bg-emerald-500 {% endif %}">
+            </div>
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Frecuencia</p>
+                <h3 class="text-3xl font-bold text-slate-800">
+                    {% if report_type == 'dispatches' %}
+                    {{ dispatches|length }}
+                    {% else %}
+                    {{ arrivals|length }}
+                    {% endif %}
+                </h3>
+                <span
+                    class="text-[10px] text-slate-500 font-medium bg-slate-100 px-2 py-0.5 rounded mt-2 inline-block">Operaciones</span>
+            </div>
+            <div class="p-3 bg-slate-50 rounded text-slate-400"><i class="fas fa-clipboard-list text-2xl"></i></div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50 border-b border-slate-200">
+                    <tr class="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                        <th class="px-6 py-4">Material / Detalle</th>
+                        <th class="px-6 py-4 text-center">Cantidad</th>
+                        <th class="px-6 py-4 text-right">Responsable / Ref</th>
+                        <th class="px-6 py-4 text-right">Fecha Hora</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-sm">
+
+                    {% if report_type == 'dispatches' %}
+                    {% for d in dispatches %}
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <span class="block font-bold text-slate-700">{{ d.variation.product.name }}</span>
+                            <span class="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+                                <i class="fas fa-map-marker-alt text-[10px]"></i> Destino: {{ d.destination }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span
+                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                                {{ d.quantity }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right text-slate-600">
+                            <span class="text-xs font-medium uppercase">{{ d.user.username|default:"Sistema" }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-right text-xs text-slate-400">
+                            {{ d.dispatched_at|date:"d M Y, H:i" }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="p-10 text-center text-slate-400 italic">No hay salidas registradas.</td>
+                    </tr>
+                    {% endfor %}
+
+                    {% else %}
+                    {% for a in arrivals %}
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <span class="block font-bold text-slate-700">{{ a.variation.product.name }}</span>
+                            <span class="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+                                <i class="fas fa-industry text-[10px]"></i> Prov: {{ a.supplier|default:"Interno" }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span
+                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                +{{ a.quantity }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right text-slate-600">
+                            <span class="text-xs font-medium uppercase">{{ a.user.username|default:"Sistema" }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-right text-xs text-slate-400">
+                            {{ a.arrival_date|date:"d M Y, H:i" }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="p-10 text-center text-slate-400 italic">No hay entradas registradas.</td>
+                    </tr>
+                    {% endfor %}
+
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-4 flex justify-between items-center text-[10px] text-slate-400 uppercase">
+        <span>Reporte Operativo</span>
+        <span>Generado: {% now "d/m/Y H:i" %}</span>
+    </div>
+
+</div>
+{% endblock %}

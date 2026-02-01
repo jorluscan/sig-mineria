@@ -1,137 +1,287 @@
-{% extends 'base.html' %} {% block content %}
-<div class="max-w-4xl mx-auto">
-  <div class="mb-10">
-    <h1 class="font-serif text-4xl text-zinc-900 mb-2">Nuevo Producto</h1>
-    <p class="text-zinc-500 text-xs uppercase tracking-[0.3em]">
-      Registro maestro de catálogo
-    </p>
-  </div>
+{% extends 'base.html' %}
+{% load humanize %}
 
-  <form
-    method="POST"
-    class="bg-white p-12 rounded-3xl border border-zinc-100 shadow-sm space-y-8"
-  >
-    {% csrf_token %}
+{% block content %}
+<div class="max-w-7xl mx-auto pb-20 fade-in">
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div class="md:col-span-2">
-        <label
-          class="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-3 block"
-          >Nombre de la Prenda</label
-        >
-        <input
-          type="text"
-          name="name"
-          required
-          placeholder="Ej: Jean Skinny Gold Edition"
-          class="w-full bg-zinc-50 border-none rounded-2xl px-6 py-4 text-zinc-900 focus:ring-2 focus:ring-gold transition-all"
-        />
-      </div>
-
-      <div>
-        <label
-          class="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-3 block"
-          >Código SKU (Único)</label
-        >
-        <input
-          type="text"
-          name="sku"
-          required
-          placeholder="DK-001"
-          class="w-full bg-zinc-50 border-none rounded-2xl px-6 py-4 text-zinc-900 focus:ring-2 focus:ring-gold"
-        />
-      </div>
-
-      <div>
-        <label
-          class="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-3 block"
-          >Categoría</label
-        >
-        <select
-          name="category"
-          required
-          class="w-full bg-zinc-50 border-none rounded-2xl px-6 py-4 text-zinc-900 focus:ring-2 focus:ring-gold appearance-none"
-        >
-          <option value="" disabled selected>Seleccione categoría...</option>
-          {% for cat in categories %}
-          <option value="{{ cat.id }}">{{ cat.name }}</option>
-          {% endfor %}
-        </select>
-      </div>
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Alta de Material</h1>
+      <p class="text-xs text-slate-500 font-medium mt-1">Registro maestro de insumos, repuestos y activos</p>
     </div>
 
-    <div
-      class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8 border-t border-zinc-50"
-    >
-      <div>
-        <label
-          class="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-3 block"
-          >Costo Adquisición</label
-        >
-        <input
-          type="number"
-          step="0.01"
-          name="cost_price"
-          required
-          placeholder="0.00"
-          class="w-full bg-zinc-50 border-none rounded-2xl px-6 py-4 text-zinc-900 focus:ring-2 focus:ring-gold"
-        />
-      </div>
-      <div>
-        <label
-          class="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-3 block"
-          >Precio de Salida</label
-        >
-        <input
-          type="number"
-          step="0.01"
-          name="sale_price"
-          required
-          placeholder="0.00"
-          class="w-full bg-zinc-50 border-none rounded-2xl px-6 py-4 text-zinc-900 focus:ring-2 focus:ring-gold"
-        />
-      </div>
-      <div>
-        <label
-          class="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-3 block"
-          >Stock de Alerta</label
-        >
-        <input
-          type="number"
-          name="min_stock_level"
-          value="5"
-          class="w-full bg-zinc-50 border-none rounded-2xl px-6 py-4 text-zinc-900 focus:ring-2 focus:ring-gold"
-        />
-      </div>
-    </div>
-
-    <div class="pt-8 border-t border-zinc-50">
-      <label
-        class="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-3 block"
-        >Código de Barras (Opcional)</label
-      >
-      <input
-        type="text"
-        name="barcode"
-        placeholder="Escanee o escriba el código EAN/UPC"
-        class="w-full bg-zinc-50 border-none rounded-2xl px-6 py-4 text-zinc-900 focus:ring-2 focus:ring-gold"
-      />
-    </div>
-
-    <div class="flex space-x-4 pt-4">
-      <button
-        type="submit"
-        class="flex-1 bg-black text-gold font-bold py-5 rounded-2xl uppercase text-xs tracking-[0.3em] hover:bg-zinc-900 transition-all shadow-xl"
-      >
-        Guardar Producto
-      </button>
-      <a
-        href="{% url 'inventory_dashboard' %}"
-        class="px-10 flex items-center justify-center text-zinc-500 text-[10px] uppercase tracking-widest hover:text-red-500 transition-colors"
-      >
+    <div class="flex gap-3">
+      <a href="{% url 'inventory_list' %}"
+        class="px-4 py-2 border border-slate-300 bg-white text-slate-600 text-sm font-semibold rounded-md hover:bg-slate-50 transition-colors">
         Cancelar
       </a>
+      <button type="submit" form="main-product-form" id="save-btn-header" disabled
+        class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md shadow-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2">
+        <i class="fas fa-save"></i> Guardar Registro
+      </button>
+    </div>
+  </div>
+
+  <form method="POST" id="main-product-form" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    {% csrf_token %}
+    <input type="hidden" name="variations_data" id="variations-json">
+
+    <div class="lg:col-span-2 space-y-6">
+
+      <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+        <div class="mb-4 border-b border-slate-100 pb-2">
+          <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wide">Identificación del Item</h3>
+        </div>
+
+        <div class="space-y-4">
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">
+              Descripción del Material <span class="text-red-500">*</span>
+            </label>
+            <input type="text" name="name" required placeholder="Ej: Cianuro de Sodio, Rodamiento SKF..."
+              class="w-full bg-white border border-slate-300 rounded px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-medium">
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 uppercase mb-1">
+                Código SKU <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i class="fas fa-barcode text-slate-400"></i>
+                </div>
+                <input type="text" name="sku" required id="master-sku" placeholder="MAT-001"
+                  class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded text-sm font-mono text-slate-700 uppercase focus:outline-none focus:border-blue-500">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-500 uppercase mb-1">
+                Familia / Categoría <span class="text-red-500">*</span>
+              </label>
+              <select name="category" required
+                class="w-full px-3 py-2 border border-slate-300 rounded text-sm text-slate-700 focus:outline-none focus:border-blue-500 bg-white">
+                <option value="" disabled selected>-- Seleccionar --</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-500 uppercase mb-1">
+                Unidad Medida <span class="text-red-500">*</span>
+              </label>
+              <input type="text" name="unit_of_measure" required placeholder="Kg, Ltr, Unidad..."
+                class="w-full px-3 py-2 border border-slate-300 rounded text-sm text-slate-700 focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+        <div class="mb-4 border-b border-slate-100 pb-2 flex justify-between items-center">
+          <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wide">Stock Inicial Físico</h3>
+          <span class="text-[10px] text-slate-400 bg-slate-50 px-2 py-1 rounded border border-slate-100">
+            Mínimo 1 registro requerido
+          </span>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded border border-slate-200 mb-4">
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+
+            <div class="md:col-span-4">
+              <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Ubicación / Detalle</label>
+              <input type="text" id="var-size" placeholder="Ej: Bodega Central, Estante A..."
+                class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm focus:border-blue-500 outline-none">
+            </div>
+
+            <div class="md:col-span-4">
+              <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Marca / Lote (Opcional)</label>
+              <input type="text" id="var-color" placeholder="Ej: Genérico, Lote 2024..."
+                class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm focus:border-blue-500 outline-none">
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Cant. Inicial</label>
+              <input type="number" id="var-stock" value="0" min="0"
+                class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm text-center focus:border-blue-500 outline-none font-bold text-slate-700">
+            </div>
+
+            <div class="md:col-span-2">
+              <button type="button" onclick="addVariation()"
+                class="w-full bg-slate-800 text-white py-1.5 rounded text-xs font-bold uppercase hover:bg-slate-900 transition-colors shadow-sm">
+                <i class="fas fa-plus"></i> Añadir
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="overflow-hidden border border-slate-200 rounded-md">
+          <table class="w-full text-left">
+            <thead class="bg-slate-50 text-xs text-slate-500 uppercase font-semibold border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-2">Ubicación / Detalle</th>
+                <th class="px-4 py-2">Marca / Lote</th>
+                <th class="px-4 py-2 text-center">SKU Generado</th>
+                <th class="px-4 py-2 text-center">Stock</th>
+                <th class="px-4 py-2 w-10"></th>
+              </tr>
+            </thead>
+            <tbody id="variations-tbody" class="divide-y divide-slate-100 text-sm text-slate-700 bg-white">
+            </tbody>
+          </table>
+          <div id="var-empty-msg" class="p-6 text-center text-slate-400 text-xs italic bg-slate-50/30">
+            Debe agregar al menos una línea de stock inicial.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="lg:col-span-1 space-y-6">
+
+      <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm sticky top-6">
+        <h3 class="font-bold text-slate-700 text-sm uppercase mb-4 border-b border-slate-100 pb-2">
+          Parámetros de Gestión
+        </h3>
+
+        <div class="space-y-5">
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Costo Unitario ($)</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">$</span>
+              <input type="number" step="0.01" name="cost_price" placeholder="0.00"
+                class="w-full pl-7 pr-3 py-2 border border-slate-300 rounded text-sm focus:ring-1 focus:ring-blue-500 outline-none">
+            </div>
+          </div>
+
+          <div class="bg-blue-50 p-3 rounded border border-blue-100">
+            <label class="block text-xs font-bold text-blue-700 uppercase mb-1">
+              Consumo Diario Est. <span class="text-red-500">*</span>
+            </label>
+            <div class="flex items-center gap-2">
+              <input type="number" step="0.01" name="daily_usage_rate" required placeholder="Ej: 10"
+                class="w-full px-3 py-2 border border-blue-300 rounded text-sm focus:ring-1 focus:ring-blue-500 outline-none text-blue-900 font-bold">
+              <span class="text-xs font-bold text-blue-500 shrink-0">unid/día</span>
+            </div>
+            <p class="text-[10px] text-blue-400 mt-1 leading-tight">Define la velocidad de consumo para calcular la
+              autonomía.</p>
+          </div>
+
+          <div class="bg-amber-50 p-3 rounded border border-amber-100">
+            <label class="block text-xs font-bold text-amber-700 uppercase mb-1">
+              Stock Mínimo (Alerta) <span class="text-red-500">*</span>
+            </label>
+            <div class="flex items-center gap-2">
+              <input type="number" step="1" name="min_stock_level" required placeholder="Ej: 5" value="5"
+                class="w-full px-3 py-2 border border-amber-300 rounded text-sm focus:ring-1 focus:ring-amber-500 outline-none text-amber-900 font-bold">
+              <span class="text-xs font-bold text-amber-500 shrink-0">unid.</span>
+            </div>
+            <p class="text-[10px] text-amber-400 mt-1 leading-tight">Umbral para activar la alerta amarilla.</p>
+          </div>
+
+          <div class="flex items-center gap-3 pt-2 border-t border-slate-100 mt-2">
+            <div class="flex items-center h-5">
+              <input id="is_critical" name="is_critical" type="checkbox"
+                class="focus:ring-red-500 h-4 w-4 text-red-600 border-gray-300 rounded cursor-pointer">
+            </div>
+            <div class="ml-2">
+              <label for="is_critical" class="font-bold text-slate-700 text-sm cursor-pointer select-none">Material
+                Crítico</label>
+              <p class="text-xs text-slate-400">Marcar para monitorear en Dashboard.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="mt-8 pt-4 border-t border-slate-100 lg:hidden">
+          <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded shadow-md">
+            Guardar
+          </button>
+        </div>
+
+      </div>
     </div>
   </form>
 </div>
+
+<script>
+  let variations = [];
+  const tbody = document.getElementById('variations-tbody');
+  const masterSkuInp = document.getElementById('master-sku');
+  const saveBtnHeader = document.getElementById('save-btn-header');
+
+  function addVariation() {
+    const size = document.getElementById('var-size').value.trim() || 'STD'; // Default STD
+    const color = document.getElementById('var-color').value.trim() || 'GEN'; // Default GEN
+    const stock = parseInt(document.getElementById('var-stock').value) || 0;
+    const masterSku = masterSkuInp.value.trim();
+
+    if (!masterSku) {
+      alert("Ingrese primero el Código SKU Principal.");
+      masterSkuInp.focus();
+      return;
+    }
+
+    // Generador de SKU Variante simple
+    const cleanSku = masterSku.toUpperCase().replace(/\s+/g, '');
+    const cleanSize = size.toUpperCase().replace(/\s+/g, '').substring(0, 5);
+    const skuVariant = `${cleanSku}-${cleanSize}-${Math.floor(Math.random() * 1000)}`;
+
+    // Añadir a la lista
+    variations.push({ size, color, stock, sku_variant: skuVariant });
+
+    // Limpiar campos
+    document.getElementById('var-size').value = '';
+    document.getElementById('var-color').value = '';
+    document.getElementById('var-stock').value = '0';
+    document.getElementById('var-size').focus();
+
+    renderVariations();
+  }
+
+  function renderVariations() {
+    const emptyMsg = document.getElementById('var-empty-msg');
+
+    if (variations.length === 0) {
+      tbody.innerHTML = "";
+      emptyMsg.classList.remove('hidden');
+      saveBtnHeader.disabled = true;
+    } else {
+      emptyMsg.classList.add('hidden');
+      saveBtnHeader.disabled = false;
+
+      tbody.innerHTML = variations.map((v, index) => `
+        <tr class="hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0">
+          <td class="px-4 py-2 font-medium">${v.size}</td>
+          <td class="px-4 py-2 text-slate-500">${v.color}</td>
+          <td class="px-4 py-2 text-center font-mono text-[10px] text-slate-400 bg-slate-50 rounded">${v.sku_variant}</td>
+          <td class="px-4 py-2 text-center font-bold text-slate-700">${v.stock}</td>
+          <td class="px-4 py-2 text-right">
+            <button onclick="removeVar(${index})" type="button" class="text-slate-300 hover:text-red-500 transition-colors">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('variations-json').value = JSON.stringify(variations);
+  }
+
+  window.removeVar = (i) => { variations.splice(i, 1); renderVariations(); };
+
+  // Enter para agregar rápido
+  document.getElementById('var-stock').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addVariation();
+    }
+  });
+</script>
 {% endblock %}

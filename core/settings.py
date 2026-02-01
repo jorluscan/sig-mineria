@@ -12,7 +12,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False').lower() in ['true', '1', 't']
 
 # ALLOWED_HOSTS corregido
-ALLOWED_HOSTS = ['18.191.228.1', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['3.16.157.108', 'localhost', '127.0.0.1']
 
 # Application definition
 INSTALLED_APPS = [

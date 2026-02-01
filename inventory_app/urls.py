@@ -20,4 +20,6 @@ urlpatterns = [
     path('product-search-ajax/', views.product_search_ajax, name='product_search_ajax'),
     # Actulizacion de Precio
     path('producto/<int:pk>/cambiar-precio/', views.update_product_price, name='update_product_price'),
+    # Reportes de Inventario
+    path('reportes/', views.inventory_reports, name='inventory_reports'),
 ]

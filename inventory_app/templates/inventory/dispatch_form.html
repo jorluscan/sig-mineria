@@ -1,102 +1,145 @@
 {% extends 'base.html' %}
 {% load humanize %}
+{% load static %}
 
 {% block content %}
-<div class="animate-fade-in max-w-7xl mx-auto">
+<div class="max-w-7xl mx-auto fade-in h-full flex flex-col">
 
-  <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-10 gap-6">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 shrink-0">
     <div>
-      <h1 class="font-serif text-4xl text-zinc-900 leading-tight font-bold">Gestión de Despachos</h1>
-      <p class="text-zinc-800 text-[10px] uppercase tracking-[0.4em] font-black mt-2">Salida masiva de mercancía •
-        Boutique Control</p>
+      <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+        <i class="fas fa-dolly text-blue-600"></i>
+        Salida de Materiales
+      </h1>
+      <p class="text-xs text-slate-500 font-medium mt-1">Gestión de despachos a departamentos operativos</p>
     </div>
 
-    <div class="flex flex-col md:flex-row gap-4 w-full xl:w-auto">
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <a href="{% url 'create_dispatch' %}"
-          class="bg-zinc-800 text-zinc-100 px-6 py-3 rounded-2xl text-[10px] uppercase font-bold hover:bg-zinc-700 transition-all shadow-lg flex items-center justify-center whitespace-nowrap">
-          <i class="fas fa-truck-loading mr-2 text-zinc-400"></i> Despacho
-        </a>
-        <a href="{% url 'create_stock_arrival' %}"
-          class="bg-[#d4af37] text-black px-6 py-3 rounded-2xl text-[10px] uppercase font-bold hover:bg-[#b8962d] transition-all shadow-lg flex items-center justify-center whitespace-nowrap">
-          <i class="fas fa-plus-circle mr-2"></i> Reposición
-        </a>
-        <a href="{% url 'create_product' %}"
-          class="bg-black text-[#d4af37] px-6 py-3 rounded-2xl text-[10px] uppercase font-bold hover:bg-zinc-900 transition-all shadow-xl flex items-center justify-center whitespace-nowrap">
-          <i class="fas fa-plus mr-2"></i> Nuevo
-        </a>
-      </div>
+    <div class="flex gap-2">
+      <a href="{% url 'inventory_list' %}"
+        class="px-4 py-2 bg-white border border-slate-300 text-slate-600 text-xs font-bold rounded hover:bg-slate-50 transition-colors">
+        <i class="fas fa-arrow-left mr-1"></i> Cancelar
+      </a>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <div class="lg:col-span-2 space-y-6">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 overflow-hidden">
 
-      <div class="bg-white p-8 rounded-3xl border border-zinc-200 shadow-sm relative">
-        <label class="text-[11px] uppercase tracking-widest text-zinc-950 font-black mb-4 block">Buscar en el
-          Inventario</label>
+    <div class="lg:col-span-8 flex flex-col gap-4 overflow-hidden h-full">
+
+      <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm shrink-0 relative z-30">
+        <label class="text-[10px] uppercase font-bold text-slate-400 mb-2 block">Buscador de Insumos / Repuestos</label>
         <div class="relative">
-          <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400"></i>
-          <input type="text" id="ajax-search-dispatch" autocomplete="off" placeholder="Escriba nombre o SKU..."
-            class="w-full bg-zinc-50 border border-zinc-200 rounded-2xl py-4 pl-12 text-sm text-zinc-950 focus:ring-2 focus:ring-gold outline-none font-bold placeholder-zinc-400 transition-all">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-search text-slate-400"></i>
+          </div>
+          <input type="text" id="ajax-search-dispatch" autocomplete="off"
+            placeholder="Buscar por nombre, código SKU o categoría..."
+            class="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-md leading-5 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 sm:text-sm transition-all">
+
+          <div id="search-spinner" class="absolute inset-y-0 right-0 pr-3 flex items-center hidden">
+            <i class="fas fa-circle-notch fa-spin text-blue-500"></i>
+          </div>
         </div>
 
         <div id="ajax-results-dispatch"
-          class="absolute left-8 right-8 mt-2 bg-white rounded-2xl shadow-2xl border border-zinc-200 hidden z-[100] max-h-64 overflow-y-auto">
+          class="absolute left-0 right-0 top-full mt-1 bg-white rounded-md shadow-lg border border-slate-200 hidden max-h-60 overflow-y-auto z-50 divide-y divide-slate-100">
         </div>
       </div>
 
-      <div class="bg-white rounded-3xl border border-zinc-200 shadow-sm overflow-hidden">
-        <table class="w-full text-left border-collapse">
-          <thead class="bg-zinc-50 border-b border-zinc-200">
-            <tr class="text-[10px] uppercase tracking-widest text-zinc-950 font-black">
-              <th class="px-6 py-5">Prenda / Referencia</th>
-              <th class="px-6 py-5 text-center">Precio Unit.</th>
-              <th class="px-6 py-5 text-center">Cantidad</th>
-              <th class="px-6 py-5 text-center">Subtotal</th>
-              <th class="px-6 py-5"></th>
-            </tr>
-          </thead>
-          <tbody id="cart-tbody" class="divide-y divide-zinc-200 text-zinc-950 font-bold">
-          </tbody>
-        </table>
-        <div id="cart-empty-msg" class="p-20 text-center text-zinc-900 italic font-black text-sm">
-          No hay productos seleccionados para el despacho.
+      <div class="bg-white rounded-lg border border-slate-200 shadow-sm flex-1 flex flex-col overflow-hidden">
+        <div class="px-4 py-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+          <h3 class="font-bold text-slate-700 text-xs uppercase">Lista de Despacho</h3>
+          <span id="items-count-badge"
+            class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">0 Items</span>
+        </div>
+
+        <div class="overflow-y-auto flex-1 p-0">
+          <table class="w-full text-left border-collapse">
+            <thead class="bg-slate-50 sticky top-0 z-10 shadow-sm">
+              <tr class="text-[10px] uppercase font-bold text-slate-500">
+                <th class="px-4 py-3">Descripción Material</th>
+                <th class="px-4 py-3 text-center">Stock Almacén</th>
+                <th class="px-4 py-3 text-center w-32">Cantidad a Despachar</th>
+                <th class="px-4 py-3 w-10"></th>
+              </tr>
+            </thead>
+            <tbody id="cart-tbody" class="divide-y divide-slate-100 text-sm text-slate-700">
+            </tbody>
+          </table>
+
+          <div id="cart-empty-msg" class="flex flex-col items-center justify-center h-64 text-slate-400">
+            <i class="fas fa-clipboard-list text-4xl mb-3 text-slate-200"></i>
+            <p class="text-sm font-medium">Orden vacía.</p>
+            <p class="text-xs">Busque y agregue materiales para comenzar.</p>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="lg:col-span-1">
-      <form method="POST" id="dispatch-final-form">
+    <div class="lg:col-span-4 h-full overflow-y-auto">
+      <form method="POST" id="dispatch-final-form" class="h-full flex flex-col">
         {% csrf_token %}
         <input type="hidden" name="items_data" id="items-json-input">
 
-        <div class="bg-zinc-950 p-8 rounded-3xl shadow-2xl sticky top-24">
-          <h2 class="font-serif text-2xl text-gold mb-8 italic border-b border-zinc-800 pb-4 text-center">Orden de
-            Salida</h2>
-
-          <div class="space-y-6 mb-10 text-white font-black">
-            <div class="flex justify-between items-center">
-              <span class="text-zinc-400 text-[10px] uppercase tracking-widest">Unidades Totales:</span>
-              <span id="summary-qty" class="text-xl">0</span>
-            </div>
-            <div class="flex justify-between items-end border-t border-zinc-800 pt-6">
-              <span class="text-zinc-400 text-[10px] uppercase tracking-widest">Monto a Facturar:</span>
-              <span id="summary-total" class="text-3xl font-serif text-gold">$0.00</span>
-            </div>
+        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm h-full flex flex-col">
+          <div class="mb-6 pb-4 border-b border-slate-100">
+            <h2 class="text-lg font-bold text-slate-800">Detalles de Entrega</h2>
+            <p class="text-xs text-slate-400">Control de Salida de Almacén</p>
           </div>
 
-          <div class="space-y-5">
+          <div class="space-y-5 flex-1">
+
             <div>
-              <label class="text-[10px] uppercase text-zinc-500 font-bold mb-2 block italic">Destino / Sucursal de
-                Envío</label>
-              <input type="text" name="destination" id="destination-field" required
-                placeholder="Ej: Cliente Final / Tienda B"
-                class="w-full bg-zinc-900 border-zinc-800 rounded-xl px-4 py-4 text-white text-sm focus:ring-1 focus:ring-gold outline-none font-bold">
+              <label class="text-xs font-bold text-slate-500 uppercase mb-1 block">Entregado por (Almacén)</label>
+              <div
+                class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded p-2 text-sm text-slate-600">
+                <i class="fas fa-user-check text-blue-500"></i>
+                <span>{{ user.username|capfirst }}</span>
+                <input type="hidden" name="dispatcher" value="{{ user.id }}">
+              </div>
             </div>
+
+            <div>
+              <label class="text-xs font-bold text-slate-500 uppercase mb-1 block">Recibido por (Operador) <span
+                  class="text-red-500">*</span></label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <i class="fas fa-user-hard-hat"></i>
+                </span>
+                <select name="receiver_id" id="receiver-select" required
+                  class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white">
+                  <option value="" disabled selected>-- Seleccionar Personal --</option>
+                  {% for u in users %}
+                  <option value="{{ u.id }}">{{ u.username|capfirst }} {% if u.first_name %}- {{ u.first_name }} {{
+                    u.last_name }}{% endif %}</option>
+                  {% empty %}
+                  <option value="" disabled>No hay usuarios registrados</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="text-xs font-bold text-slate-500 uppercase mb-1 block">Área de Destino <span
+                  class="text-red-500">*</span></label>
+              <input type="text" name="destination" id="destination-field" required
+                placeholder="Ej: Frente Mina 4, Taller Mecánico..."
+                class="w-full px-3 py-2 border border-slate-300 rounded text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
+            </div>
+
+            <div class="mt-8 bg-blue-50 p-4 rounded border border-blue-100 text-center">
+              <span class="text-xs text-blue-600 font-bold uppercase block mb-1">Total Items a Entregar</span>
+              <span id="summary-qty" class="text-4xl font-bold text-blue-800">0</span>
+              <span class="text-xs text-blue-400 block mt-1">unidades físicas</span>
+            </div>
+
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-slate-100">
             <button type="submit" id="submit-confirm-btn" disabled
-              class="w-full bg-gold text-black font-black py-5 rounded-2xl uppercase text-[11px] tracking-[0.2em] hover:bg-yellow-500 transition-all shadow-lg opacity-50 cursor-not-allowed">
-              Confirmar Movimiento
+              class="w-full bg-slate-800 text-white font-bold py-3 rounded shadow-lg shadow-slate-500/30 hover:bg-slate-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2">
+              <i class="fas fa-check-double"></i>
+              Confirmar Salida
             </button>
           </div>
         </div>
@@ -109,46 +152,61 @@
   let cart = [];
   const searchInp = document.getElementById('ajax-search-dispatch');
   const resultsBox = document.getElementById('ajax-results-dispatch');
+  const spinner = document.getElementById('search-spinner');
   const tbody = document.getElementById('cart-tbody');
   const destInp = document.getElementById('destination-field');
+  const receiverSel = document.getElementById('receiver-select');
 
-  // LÓGICA AJAX (Basada en tu models.py)
+  // Lógica de Búsqueda
   searchInp.addEventListener('input', async (e) => {
     const q = e.target.value.trim();
     if (q.length < 2) { resultsBox.classList.add('hidden'); return; }
+
+    spinner.classList.remove('hidden');
 
     try {
       const resp = await fetch('/product-search-ajax/?q=' + encodeURIComponent(q));
       const data = await resp.json();
 
       if (data.results && data.results.length > 0) {
+        // Renderizado del Dropdown sin precios
         resultsBox.innerHTML = data.results.map(p => `
-          <div onclick="addToCart('${p.id}', '${p.name}', '${p.sku}', ${p.price}, ${p.stock})" 
-               class="px-6 py-4 hover:bg-zinc-100 cursor-pointer border-b border-zinc-100 flex justify-between items-center transition-colors">
-            <div class="flex flex-col">
-              <span class="text-sm font-black text-zinc-950">${p.name}</span>
-              <span class="text-[10px] text-zinc-700 font-bold uppercase tracking-tight">SKU: ${p.sku} | Stock: ${p.stock}</span>
+          <div onclick="addToCart('${p.id}', '${p.name}', '${p.sku}', ${p.stock})" 
+               class="px-4 py-3 hover:bg-slate-50 cursor-pointer flex justify-between items-center transition-colors group border-b border-slate-50 last:border-0">
+            <div>
+              <span class="text-sm font-semibold text-slate-700 block group-hover:text-blue-700">${p.name}</span>
+              <span class="text-[10px] text-slate-400 font-medium uppercase">COD: ${p.sku}</span>
             </div>
-            <span class="text-sm font-black text-zinc-950">$${p.price.toFixed(2)}</span>
+            <div class="text-right">
+              <span class="block text-xs font-bold ${p.stock > 0 ? 'text-emerald-600' : 'text-red-500'}">
+                Stock: ${p.stock}
+              </span>
+            </div>
           </div>
         `).join('');
         resultsBox.classList.remove('hidden');
       } else {
-        resultsBox.innerHTML = '<div class="p-4 text-center text-zinc-950 text-sm font-black italic">Sin coincidencias</div>';
+        resultsBox.innerHTML = '<div class="p-3 text-center text-slate-500 text-xs italic">No se encontraron materiales.</div>';
         resultsBox.classList.remove('hidden');
       }
-    } catch (err) { console.error("Error en búsqueda AJAX:", err); }
+    } catch (err) { console.error(err); }
+    finally { spinner.classList.add('hidden'); }
   });
 
-  window.addToCart = (id, name, sku, price, stock) => {
-    if (stock <= 0) { alert("Esta prenda no tiene stock."); return; }
+  // addToCart ya no recibe price, o lo ignora
+  window.addToCart = (id, name, sku, stock) => {
+    if (stock <= 0) { alert("Sin stock disponible en almacén."); return; }
+
     const exists = cart.find(i => i.id === id);
     if (exists) {
       if (exists.qty < stock) exists.qty++;
-      else alert("Límite de existencias alcanzado.");
+      else alert("No puedes despachar más del stock disponible.");
     } else {
-      cart.push({ id, name, sku, price, qty: 1, max: stock });
+      // Guardamos precio como 0 o null si queremos ignorarlo totalmente, 
+      // pero mantenemos la estructura por si el backend lo necesita calcular
+      cart.push({ id, name, sku, qty: 1, max: stock });
     }
+
     searchInp.value = "";
     resultsBox.classList.add('hidden');
     render();
@@ -156,26 +214,32 @@
 
   function render() {
     const emptyMsg = document.getElementById('cart-empty-msg');
+    const countBadge = document.getElementById('items-count-badge');
+
+    countBadge.innerText = `${cart.length} Items`;
+
     if (cart.length === 0) {
       tbody.innerHTML = "";
       emptyMsg.classList.remove('hidden');
     } else {
       emptyMsg.classList.add('hidden');
+      // Renderizado de la tabla sin columna de precio
       tbody.innerHTML = cart.map((item, index) => `
-        <tr class="text-sm text-zinc-950 font-black border-b border-zinc-200 hover:bg-zinc-50 transition-colors">
-          <td class="px-6 py-5">
-            <span class="block">${item.name}</span>
-            <span class="text-[10px] text-zinc-600 font-bold uppercase tracking-tighter">REF: ${item.sku}</span>
+        <tr class="hover:bg-slate-50 transition-colors group">
+          <td class="px-4 py-3">
+            <span class="block font-medium text-slate-700">${item.name}</span>
+            <span class="text-[10px] text-slate-400 font-bold uppercase">SKU: ${item.sku}</span>
           </td>
-          <td class="px-6 py-5 text-center font-serif">$${item.price.toFixed(2)}</td>
-          <td class="px-6 py-5 text-center">
+          <td class="px-4 py-3 text-center text-xs text-slate-500">
+             ${item.max} unid.
+          </td>
+          <td class="px-4 py-3 text-center">
             <input type="number" value="${item.qty}" min="1" max="${item.max}" 
               onchange="updateQty(${index}, this.value)"
-              class="w-16 bg-zinc-100 border border-zinc-300 rounded-lg py-1 text-center font-black focus:ring-1 focus:ring-gold text-zinc-950">
+              class="w-20 bg-white border border-slate-300 rounded text-center text-sm focus:ring-1 focus:ring-blue-500 outline-none py-1 font-bold text-slate-700">
           </td>
-          <td class="px-6 py-5 text-center">$${(item.price * item.qty).toFixed(2)}</td>
-          <td class="px-6 py-5 text-right">
-            <button onclick="remove(${index})" class="text-red-600 hover:scale-110 transition-transform p-2">
+          <td class="px-4 py-3 text-right">
+            <button onclick="remove(${index})" class="text-slate-300 hover:text-red-500 transition-colors p-2" title="Quitar">
               <i class="fas fa-trash-alt"></i>
             </button>
           </td>
@@ -183,25 +247,44 @@
       `).join('');
     }
 
-    let tV = 0; let tQ = 0;
-    cart.forEach(i => { tV += (i.price * i.qty); tQ += i.qty; });
+    // Solo calculamos cantidad total
+    let tQ = 0;
+    cart.forEach(i => { tQ += parseInt(i.qty); });
+
     document.getElementById('summary-qty').innerText = tQ;
-    document.getElementById('summary-total').innerText = `$${tV.toFixed(2)}`;
     document.getElementById('items-json-input').value = JSON.stringify(cart);
 
+    validateForm();
+  }
+
+  function validateForm() {
     const btn = document.getElementById('submit-confirm-btn');
-    const ok = cart.length > 0 && destInp.value.trim() !== "";
-    btn.disabled = !ok;
-    btn.style.opacity = ok ? "1" : "0.5";
-    btn.style.cursor = ok ? "pointer" : "not-allowed";
+    const isValid = cart.length > 0 &&
+      destInp.value.trim() !== "" &&
+      receiverSel.value !== "";
+    btn.disabled = !isValid;
   }
 
   window.remove = (i) => { cart.splice(i, 1); render(); };
+
   window.updateQty = (i, v) => {
-    let n = parseInt(v); if (n > cart[i].max) n = cart[i].max;
-    cart[i].qty = n || 1; render();
+    let n = parseInt(v);
+    if (isNaN(n) || n < 1) n = 1;
+    if (n > cart[i].max) {
+      alert(`Solo hay ${cart[i].max} unidades disponibles.`);
+      n = cart[i].max;
+    }
+    cart[i].qty = n;
+    render();
   };
-  destInp.addEventListener('input', render);
-  document.addEventListener('click', (e) => { if (!searchInp.contains(e.target)) resultsBox.classList.add('hidden'); });
+
+  destInp.addEventListener('input', validateForm);
+  receiverSel.addEventListener('change', validateForm);
+
+  document.addEventListener('click', (e) => {
+    if (!searchInp.contains(e.target) && !resultsBox.contains(e.target)) {
+      resultsBox.classList.add('hidden');
+    }
+  });
 </script>
 {% endblock %}

@@ -1,12 +1,8 @@
-# Byte-compiled / optimized / DLL files
+# --- Python General ---
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -27,55 +23,37 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
+# --- Logs y Errores ---
 pip-log.txt
 pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
 *.log
+
+# --- Django ---
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-media/
-static/
 
-# Environment variables
+# ⚠️ MEDIA: No subimos las fotos de prueba de tu PC. 
+# En AWS tendrás fotos reales.
+media/
+
+# ⚠️ STATIC: 
+# 'staticfiles' es la carpeta automática de Django (se ignora).
+# Mantenemos 'static' (sin el #) si ahí guardas tus CSS/JS originales.
+staticfiles/
+# static/  <-- COMENTADO para que SÍ se suban tus estilos al GitHub.
+
+# --- Seguridad ---
 .env
 
-# Docker
+# --- VS Code y Entornos Virtuales ---
+.vscode/
+venv/
+env/
+.idea/
+
+# --- Docker ---
 docker-compose.override.yml
 
-# --- Ajustes específicos para Gestion de Inventario ---
-# Ignorar respaldos de base de datos
+# --- SQL Backups ---
 *.sql
-
-# Ignorar archivos basura detectados por error
-See
-[21
-python
-
-# Ignorar carpetas de archivos estáticos recolectados
-staticfiles/
